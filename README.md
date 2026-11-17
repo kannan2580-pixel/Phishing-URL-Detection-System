@@ -18,6 +18,7 @@ whether a web URL is **Legitimate** or **Phishing** based on lexical and structu
 
 ## 📁 Project Structure
 
+```text
 Phishing-URL-Detection-System/
 │
 ├── app/
@@ -60,6 +61,7 @@ Phishing-URL-Detection-System/
 ├── requirements.txt
 ├── .gitignore
 └── README.md
+```
 ```
 
 ---
