@@ -1,6 +1,6 @@
 # PHISHING URL DETECTION SYSTEM
 
-An academic Computer Science capstone project using Machine Learning to detect whether a web URL is **Legitimate** or **Phishing** based on lexical and structural features.
+whether a web URL is **Legitimate** or **Phishing** based on lexical and structural features.
 
 ---
 
