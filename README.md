@@ -18,42 +18,48 @@ whether a web URL is **Legitimate** or **Phishing** based on lexical and structu
 
 ## 📁 Project Structure
 
-```text
-e:\PHISHING URL DETECTION SYSTEM\
-├── app\
+Phishing-URL-Detection-System/
+│
+├── app/
 │   ├── __init__.py
-│   ├── feature_extractor.py          # 16-Feature Extraction Engine
-│   ├── database.py                   # SQLite Management & Storage
-│   ├── routes.py                     # Flask REST API & Web Routes
-│   ├── models\                       # Saved ML Model & Metrics JSON
+│   ├── content_analyzer.py
+│   ├── feature_extractor.py
+│   ├── database.py
+│   ├── routes.py
+│   │
+│   ├── models/
 │   │   ├── phishing_model.pkl
 │   │   ├── feature_names.pkl
 │   │   ├── scaler.pkl
 │   │   └── metrics.json
-│   ├── templates\                    # HTML5 Templates
+│   │
+│   ├── templates/
 │   │   ├── base.html
 │   │   ├── index.html
 │   │   ├── history.html
 │   │   └── metrics.html
-│   └── static\                       # CSS, JS, and Images
-│       ├── css\style.css
-│       ├── js\main.js
-│       └── images\                   # Screenshot & Diagram PNGs
-├── dataset\
-│   ├── generate_dataset.py           # Dataset Generator
-│   └── phishing_urls.csv             # 2,000 Sample Dataset
-├── tests\                            # Pytest Test Suite
-│   ├── test_extractor.py
-│   └── test_app.py
-├── train_model.py                    # ML Model Pipeline Script
-├── generate_diagrams.py              # Architecture & Workflow Diagram Generator
-├── capture_screenshots.py            # Screenshot Capturing Tool
-├── generate_pdf.py                   # Academic Report PDF Generator
-├── run.py                            # Flask Application Entrypoint
-├── requirements.txt                  # Python Package Dependencies
-├── README.md                         # Documentation
-├── VIVA_QUESTIONS.md                 # Student Viva & Module Guide
-└── Phishing_URL_Detection_Project_Report.pdf # FINAL GENERATED ACADEMIC REPORT
+│   │
+│   └── static/
+│       ├── css/
+│       │   └── style.css
+│       ├── js/
+│       │   └── main.js
+│       └── images/
+│
+├── dataset/
+│   ├── generate_dataset.py
+│   └── phishing_urls.csv
+│
+├── tests/
+│   ├── test_app.py
+│   ├── test_content_analyzer.py
+│   └── test_extractor.py
+│
+├── train_model.py
+├── run.py
+├── requirements.txt
+├── .gitignore
+└── README.md
 ```
 
 ---
