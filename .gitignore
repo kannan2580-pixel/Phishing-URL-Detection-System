@@ -1,0 +1,10 @@
+__pycache__/
+.pytest_cache/
+*.py[cod]
+.venv/
+venv/
+.env
+app/phishing_detector.db
+Phishing_URL_Detection_Project_Report.docx
+Phishing_URL_Detection_Project_Report.pdf
+VIVA_QUESTIONS.md

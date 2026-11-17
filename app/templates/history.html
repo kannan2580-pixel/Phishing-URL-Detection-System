@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Scan History - Phishing Detection System{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+        <div>
+            <h1 class="hero-title" style="font-size: 1.8rem; margin-bottom: 0.25rem;">Analysis Scan History</h1>
+            <p class="hero-subtitle" style="margin-bottom: 0;">Logs of all analyzed URLs stored securely in SQLite database.</p>
+        </div>
+        <a href="{{ url_for('main.index') }}" class="btn btn-secondary">🔍 New Scan</a>
+    </div>
+
+    {% if history and history|length > 0 %}
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Analyzed URL</th>
+                    <th>Classification</th>
+                    <th>Risk Score</th>
+                    <th>Date & Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in history %}
+                <tr>
+                    <td>#{{ item.id }}</td>
+                    <td style="font-family: monospace; font-size: 0.95rem; max-width: 400px; word-break: break-all;">
+                        {{ item.url }}
+                    </td>
+                    <td>
+                        {% if item.prediction == 'Phishing' %}
+                        <span class="badge badge-phish">⚠️ Phishing</span>
+                        {% else %}
+                        <span class="badge badge-legit">✅ Legitimate</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <strong style="color: {% if item.risk_score > 50 %}var(--danger-red){% else %}var(--success-green){% endif %};">
+                            {{ item.risk_score }}%
+                        </strong>
+                    </td>
+                    <td style="color: var(--text-muted); font-size: 0.9rem;">
+                        {{ item.created_at }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
+        <p style="font-size: 1.2rem; margin-bottom: 1rem;">No scan history recorded yet.</p>
+        <a href="{{ url_for('main.index') }}" class="btn">Analyze Your First URL</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

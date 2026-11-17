@@ -1,0 +1,54 @@
+{
+    "model_name": "Random Forest",
+    "dataset_size": 2000,
+    "train_size": 1600,
+    "test_size": 400,
+    "accuracy": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "confusion_matrix": {
+        "tn": 200,
+        "fp": 0,
+        "fn": 0,
+        "tp": 200
+    },
+    "feature_importances": {
+        "is_https": 0.2958,
+        "suspicious_keyword_count": 0.1776,
+        "digit_count": 0.122,
+        "question_count": 0.0811,
+        "equal_count": 0.0696,
+        "subdomain_count": 0.0608,
+        "hyphen_count": 0.0435,
+        "has_ip": 0.043,
+        "prefix_suffix_domain": 0.0286,
+        "url_depth": 0.0174,
+        "url_length": 0.0163,
+        "has_shortener": 0.0145,
+        "slash_count": 0.0128,
+        "dot_count": 0.0084,
+        "letter_count": 0.0067,
+        "at_count": 0.0019
+    },
+    "model_comparison": {
+        "Random Forest": {
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1_score": 1.0
+        },
+        "Decision Tree": {
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1_score": 1.0
+        },
+        "Logistic Regression": {
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1_score": 1.0
+        }
+    }
+}

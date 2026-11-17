@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}ML Performance Metrics - Phishing Detection System{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="hero-title" style="font-size: 1.8rem; margin-bottom: 0.25rem;">Machine Learning Model Performance</h1>
+    <p class="hero-subtitle">Empirical evaluation metrics and visualizations calculated directly from the trained model.</p>
+
+    {% if metrics %}
+    <!-- Key Performance Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-num">{{ (metrics.accuracy * 100) | round(2) }}%</div>
+            <div class="stat-desc">Test Accuracy</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num" style="color: var(--accent-cyan);">{{ (metrics.precision * 100) | round(2) }}%</div>
+            <div class="stat-desc">Precision Score</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num" style="color: var(--warning-amber);">{{ (metrics.recall * 100) | round(2) }}%</div>
+            <div class="stat-desc">Recall Score</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num" style="color: var(--success-green);">{{ (metrics.f1_score * 100) | round(2) }}%</div>
+            <div class="stat-desc">F1-Score</div>
+        </div>
+    </div>
+
+    <!-- Plots Section -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; margin-top: 2rem;">
+        <div style="background: #0f172a; padding: 1.5rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); text-align: center;">
+            <h3 style="margin-bottom: 1rem; color: var(--text-main);">Confusion Matrix</h3>
+            <img src="{{ url_for('static', filename='images/confusion_matrix.png') }}" alt="Confusion Matrix" style="max-width: 100%; border-radius: 8px;">
+            <div style="margin-top: 1rem; color: var(--text-muted); font-size: 0.85rem;">
+                True Negatives: {{ metrics.confusion_matrix.tn }} | False Positives: {{ metrics.confusion_matrix.fp }}<br>
+                False Negatives: {{ metrics.confusion_matrix.fn }} | True Positives: {{ metrics.confusion_matrix.tp }}
+            </div>
+        </div>
+
+        <div style="background: #0f172a; padding: 1.5rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); text-align: center;">
+            <h3 style="margin-bottom: 1rem; color: var(--text-main);">Feature Importances</h3>
+            <img src="{{ url_for('static', filename='images/feature_importance.png') }}" alt="Feature Importance" style="max-width: 100%; border-radius: 8px;">
+            <div style="margin-top: 1rem; color: var(--text-muted); font-size: 0.85rem;">
+                Top features contributing to Random Forest decision boundaries.
+            </div>
+        </div>
+    </div>
+
+    <!-- Model Comparison Table -->
+    {% if metrics.model_comparison %}
+    <div style="margin-top: 3rem;">
+        <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 1rem;">Machine Learning Model Benchmark Comparison</h3>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Algorithm Name</th>
+                        <th>Accuracy</th>
+                        <th>Precision</th>
+                        <th>Recall</th>
+                        <th>F1-Score</th>
+                        <th>Selected Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for model_name, res in metrics.model_comparison.items() %}
+                    <tr>
+                        <td><strong>{{ model_name }}</strong></td>
+                        <td>{{ (res.accuracy * 100) | round(2) }}%</td>
+                        <td>{{ (res.precision * 100) | round(2) }}%</td>
+                        <td>{{ (res.recall * 100) | round(2) }}%</td>
+                        <td>{{ (res.f1_score * 100) | round(2) }}%</td>
+                        <td>
+                            {% if model_name == metrics.model_name %}
+                            <span class="badge badge-legit">Selected Classifier</span>
+                            {% else %}
+                            <span style="color: var(--text-muted);">Evaluated</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
+        <p>No model performance metrics available. Please run <code>train_model.py</code>.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

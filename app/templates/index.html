@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+
+{% block title %}URL & Content Analyzer - Phishing Detection System{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="hero-title">Phishing URL & Website Content Detection System</h1>
+    <p class="hero-subtitle">Analyzes URL lexical features, machine learning models, and website HTML content to detect zero-day phishing, brand impersonation, and credential harvesting.</p>
+
+    <!-- Error Alert Box -->
+    <div id="errorMessage" style="{% if error %}display: block;{% else %}display: none;{% endif %} background: rgba(239, 68, 68, 0.2); border: 1px solid var(--danger-red); color: #fca5a5; padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; font-weight: 500;">
+        {% if error %}{{ error }}{% endif %}
+    </div>
+
+    <form id="urlForm" action="{{ url_for('main.analyze') }}" method="POST">
+        <div class="url-input-container">
+            <input type="text" id="urlInput" name="url" class="url-input" placeholder="e.g. https://www.google.com or http://login-appleid.com.verify-account.info" required autocomplete="off">
+            <button type="submit" id="analyzeBtn" class="btn">🔍 Analyze URL & Content</button>
+        </div>
+    </form>
+
+    <div class="sample-urls">
+        <span>Quick Test Samples:</span>
+        <button type="button" class="chip legit-chip" onclick="setSampleUrl('https://www.google.com/search?q=cybersecurity')">✅ Legitimate (Google Search)</button>
+        <button type="button" class="chip legit-chip" onclick="setSampleUrl('https://github.com/torvalds/linux')">✅ Legitimate (GitHub Repository)</button>
+        <button type="button" class="chip phish-chip" onclick="setSampleUrl('http://login-appleid.com.verify-account.info/login.php?user=123')">⚠️ Phishing (Fake Apple ID)</button>
+        <button type="button" class="chip phish-chip" onclick="setSampleUrl('http://192.168.1.45/paypal/webscr?cmd=_login-run')">⚠️ Phishing (Raw IP PayPal)</button>
+    </div>
+</div>
+
+<!-- Analysis Result Section -->
+<div id="resultCard" class="result-card {% if result %}{% if result.outcome_level == 'HIGH' %}phishing{% elif result.outcome_level == 'MEDIUM' %}suspicious{% elif result.outcome_level == 'UNKNOWN / UNVERIFIED' %}unverified{% else %}legitimate{% endif %} show{% endif %}">
+    <div class="result-header">
+        <div>
+            <span style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; font-weight: 600;">Analyzed Target URL:</span>
+            <div id="analyzedUrlText" style="font-size: 1.15rem; font-weight: 700; word-break: break-all; margin-top: 0.25rem; color: #fff;">
+                {% if result %}{{ result.url }}{% endif %}
+            </div>
+        </div>
+        <div id="verdictBadge" class="verdict-badge {% if result %}{% if result.outcome_level == 'HIGH' %}phishing{% elif result.outcome_level == 'MEDIUM' %}suspicious{% elif result.outcome_level == 'UNKNOWN / UNVERIFIED' %}unverified{% else %}legitimate{% endif %}{% endif %}">
+            {% if result %}
+                {% if result.outcome_level == 'HIGH' %}
+                    🚨 HIGH RISK (PHISHING)
+                {% elif result.outcome_level == 'MEDIUM' %}
+                    ⚠️ MEDIUM RISK (SUSPICIOUS)
+                {% elif result.outcome_level == 'UNKNOWN / UNVERIFIED' %}
+                    ❓ UNKNOWN / UNVERIFIED
+                {% else %}
+                    ✅ LOW RISK (LEGITIMATE)
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Risk Level Meter Gauge -->
+    <div class="risk-meter-box">
+        <div class="risk-labels">
+            <span>Overall Calibrated Risk Score Assessment</span>
+            <span id="riskScoreVal">{% if result %}{{ result.risk_score }}%{% else %}0%{% endif %}</span>
+        </div>
+        <div class="progress-bar-bg">
+            <div id="progressBarFill" class="progress-bar-fill {% if result %}{% if result.outcome_level == 'HIGH' %}fill-danger{% elif result.outcome_level == 'MEDIUM' %}fill-warning{% elif result.outcome_level == 'UNKNOWN / UNVERIFIED' %}fill-neutral{% else %}fill-safe{% endif %}{% endif %}" style="width: {% if result %}{{ result.risk_score }}{% else %}0{% endif %}%;"></div>
+        </div>
+
+        <div style="display: flex; gap: 2rem; margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted);">
+            <div>URL ML Score: <strong id="urlScoreVal" style="color: #fff;">{% if result %}{{ result.url_risk_score }}%{% else %}0%{% endif %}</strong></div>
+            <div>Content Risk Score: <strong id="contentScoreVal" style="color: #fff;">{% if result %}{% if result.content_risk_score is not none %}{{ result.content_risk_score }}%{% else %}Unreachable{% endif %}{% else %}N/A{% endif %}</strong></div>
+        </div>
+    </div>
+
+    <!-- Executive Summary & Evidence Reasons -->
+    <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.5rem;">
+        <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--accent-cyan);">Inspection Evidence & Findings</h3>
+        <p id="summaryText" style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 0.75rem;">
+            {% if result %}{{ result.summary_text }}{% endif %}
+        </p>
+        <ul id="reasonsList" class="reasons-list">
+            {% if result and result.reasons %}
+                {% for reason in result.reasons %}
+                    <li>{{ reason }}</li>
+                {% endfor %}
+            {% endif %}
+        </ul>
+    </div>
+
+    <!-- Website Content Inspection Card -->
+    <div style="background: rgba(15, 23, 42, 0.5); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.5rem;">
+        <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; color: #fff;">🌐 Website HTML Content Analysis</h3>
+        <div id="contentAnalysisGrid" class="features-grid" style="grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));">
+            {% if result and result.content_analysis %}
+                <div class="feature-box">
+                    <div class="feature-title">Content Status</div>
+                    <div class="feature-value" style="font-size: 1rem;">
+                        {% if result.content_analysis.content_retrieved %}
+                            <span style="color: var(--success-green);">Fetched (200 OK)</span>
+                        {% else %}
+                            <span style="color: var(--warning-amber);">Content Unreachable</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="feature-box">
+                    <div class="feature-title">Page Title</div>
+                    <div class="feature-value" style="font-size: 0.95rem; word-break: break-word;">
+                        {{ result.content_analysis.title if result.content_analysis.title else '(No Title Tag)' }}
+                    </div>
+                </div>
+                <div class="feature-box">
+                    <div class="feature-title">Password Input Fields</div>
+                    <div class="feature-value" style="color: {% if result.content_analysis.has_password_input %}var(--danger-red){% else %}var(--success-green){% endif %};">
+                        {{ result.content_analysis.password_input_count }} Detected
+                    </div>
+                </div>
+                <div class="feature-box">
+                    <div class="feature-title">Total HTML Forms</div>
+                    <div class="feature-value">{{ result.content_analysis.form_count }}</div>
+                </div>
+                <div class="feature-box">
+                    <div class="feature-title">External Form Actions</div>
+                    <div class="feature-value" style="color: {% if result.content_analysis.external_form_actions %}var(--danger-red){% else %}var(--success-green){% endif %};">
+                        {{ result.content_analysis.external_form_actions|length if result.content_analysis.external_form_actions else 'None' }}
+                    </div>
+                </div>
+                <div class="feature-box">
+                    <div class="feature-title">Brand Verification</div>
+                    <div class="feature-value" style="font-size: 0.95rem;">
+                        {% if result.content_analysis.brand_mismatch %}
+                            <span style="color: var(--danger-red);">⚠️ Impersonation ('{{ result.content_analysis.brand_detected }}')</span>
+                        {% elif result.content_analysis.brand_detected %}
+                            <span style="color: var(--success-green);">✅ Verified ('{{ result.content_analysis.brand_detected }}')</span>
+                        {% else %}
+                            No Brand Mentioned
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Extracted Lexical & Structural URL Features -->
+    <h3 style="font-size: 1.1rem; font-weight: 700; margin-top: 1.5rem;">🔗 Extracted Lexical & Structural URL Features (ML Model)</h3>
+    <div id="featuresContainer" class="features-grid">
+        {% if result and result.features %}
+            {% for key, val in result.features.items() %}
+                <div class="feature-box">
+                    <div class="feature-title">{{ key.replace('_', ' ') }}</div>
+                    <div class="feature-value">
+                        {% if key in ['is_https', 'has_ip', 'has_shortener'] %}
+                            {% if val == 1 %}YES{% else %}NO{% endif %}
+                        {% else %}
+                            {{ val }}
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+
+<!-- System Statistics Bar -->
+<div style="margin-top: 3rem;">
+    <h2 style="font-size: 1.3rem; font-weight: 700; margin-bottom: 1rem;">System Summary Statistics</h2>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-num">{{ stats.total_scans if stats and stats.total_scans is defined else 0 }}</div>
+            <div class="stat-desc">Total URLs Analyzed</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num" style="color: var(--success-green);">{{ stats.legitimate_count if stats and stats.legitimate_count is defined else 0 }}</div>
+            <div class="stat-desc">Legitimate URLs</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num" style="color: var(--danger-red);">{{ stats.phishing_count if stats and stats.phishing_count is defined else 0 }}</div>
+            <div class="stat-desc">Phishing URLs Detected</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num" style="color: var(--warning-amber);">{{ stats.average_risk_score if stats and stats.average_risk_score is defined else 0 }}%</div>
+            <div class="stat-desc">Average System Risk Score</div>
+        </div>
+    </div>
+</div>
+{% endblock %}
