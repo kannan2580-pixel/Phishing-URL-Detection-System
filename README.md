@@ -113,7 +113,3 @@ python generate_pdf.py
 The report will be created at: `e:\PHISHING URL DETECTION SYSTEM\Phishing_URL_Detection_Project_Report.pdf`
 
 ---
-
-## 🎓 Viva Voce & Academic Defense
-
-Refer to [`VIVA_QUESTIONS.md`](VIVA_QUESTIONS.md) for simple module breakdowns and frequently asked viva questions with answers.
